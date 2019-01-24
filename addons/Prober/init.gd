@@ -1,12 +1,13 @@
 tool
 extends EditorPlugin
 
-var button
+const ProberButton = preload("ProberButton.tscn")
+
+var button : MenuButton
 var current_selection = []
 
 func _enter_tree():
-	button = Button.new()
-	button.text = "Create GI Probe"
+	button = ProberButton.instance()
 	button.flat = true
 	button.hide()
 	
@@ -24,8 +25,13 @@ func _enter_tree():
 	add_control_to_container(EditorPlugin.CONTAINER_SPATIAL_EDITOR_MENU, button)
 	button.icon = button.get_icon("GIProbe", "EditorIcons")
 	get_editor_interface().get_selection().connect("selection_changed", self, "get_selection")
-	button.connect("pressed", self, "create_gi_probe")
+	button.get_popup().connect("id_pressed", self, "get_popup_pressed")
 	pass
+
+func get_popup_pressed(id):
+	match(id):
+		0: create_gi_probe()
+		1: create_baked_lightmap()
 
 func get_selection():
 	var selection : EditorSelection = get_editor_interface().get_selection()
@@ -41,13 +47,26 @@ func get_selection():
 		button.hide()
 	current_selection = array
 
-func create_gi_probe():
-	var aabb = null
+func make_aabb():
+	var aabb : AABB = AABB(Vector3(0,0,0), Vector3(0,0,0))
 	for item in current_selection:
-		if aabb == null:
+		if aabb.has_no_surface():
 			aabb = item.get_transformed_aabb()
 		else:
 			aabb = aabb.merge(item.get_transformed_aabb())
+	return aabb
+
+func create_baked_lightmap():
+	var aabb = make_aabb()
+	var baked_lightmap = BakedLightmap.new()
+	var _owner = get_editor_interface().get_edited_scene_root()
+	_owner.add_child(baked_lightmap)
+	baked_lightmap.owner = _owner
+	baked_lightmap.bake_extents = (aabb.size/2.0) + ProjectSettings.get_setting("editor_plugins/prober/extent_growth")
+	baked_lightmap.translation = aabb.position + (aabb.size/2.0)
+
+func create_gi_probe():
+	var aabb = make_aabb()
 	var gi_probe = GIProbe.new()
 	var _owner = get_editor_interface().get_edited_scene_root()
 	_owner.add_child(gi_probe)
