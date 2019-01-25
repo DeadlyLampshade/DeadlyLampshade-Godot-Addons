@@ -33,6 +33,14 @@ func get_popup_pressed(id):
 		0: create_gi_probe()
 		1: create_baked_lightmap()
 
+func check_children_for_nodes(node):
+	var array = []
+	for child in node.get_children():
+		if child is GeometryInstance:
+			if child.use_in_baked_light: array.append(child)
+		array += check_children_for_nodes(child)
+	return array
+
 func get_selection():
 	var selection : EditorSelection = get_editor_interface().get_selection()
 	var selected_objects = selection.get_selected_nodes()
@@ -40,6 +48,7 @@ func get_selection():
 	for object in selected_objects:
 		if object is GeometryInstance:
 			if object.use_in_baked_light: array.append(object)
+		array += check_children_for_nodes(object)
 	print(array)
 	if !array.empty():
 		button.show()
