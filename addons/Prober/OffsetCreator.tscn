@@ -1,0 +1,193 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/Prober/OffsetCreator.gd" type="Script" id=1]
+
+[node name="OffsetCreate" type="WindowDialog"]
+visible = true
+margin_right = 562.0
+margin_bottom = 100.0
+rect_min_size = Vector2( 562, 120 )
+window_title = "Create with Offset..."
+script = ExtResource( 1 )
+
+[node name="MainContainer" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 5.0
+margin_right = -5.0
+margin_bottom = -5.0
+rect_min_size = Vector2( 552, 0 )
+
+[node name="VectorContainer" type="HBoxContainer" parent="MainContainer"]
+margin_right = 552.0
+margin_bottom = 66.0
+
+[node name="XContainer" type="VBoxContainer" parent="MainContainer/VectorContainer"]
+margin_right = 176.0
+margin_bottom = 66.0
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="MainContainer/VectorContainer/XContainer"]
+margin_right = 176.0
+margin_bottom = 14.0
+text = "X"
+
+[node name="Offset" type="HBoxContainer" parent="MainContainer/VectorContainer/XContainer"]
+margin_top = 18.0
+margin_right = 176.0
+margin_bottom = 42.0
+
+[node name="Label" type="Label" parent="MainContainer/VectorContainer/XContainer/Offset"]
+margin_top = 5.0
+margin_right = 86.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+text = "Offset"
+
+[node name="LineEdit" type="LineEdit" parent="MainContainer/VectorContainer/XContainer/Offset"]
+margin_left = 90.0
+margin_right = 176.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+
+[node name="Placement" type="HBoxContainer" parent="MainContainer/VectorContainer/XContainer"]
+margin_top = 46.0
+margin_right = 176.0
+margin_bottom = 66.0
+
+[node name="Label" type="Label" parent="MainContainer/VectorContainer/XContainer/Placement"]
+margin_top = 3.0
+margin_right = 86.0
+margin_bottom = 17.0
+size_flags_horizontal = 3
+text = "Growth"
+
+[node name="OptionButton" type="OptionButton" parent="MainContainer/VectorContainer/XContainer/Placement"]
+margin_left = 90.0
+margin_right = 176.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Right"
+items = [ "Right", null, false, 0, null, "Middle", null, false, 1, null, "Left", null, false, 2, null ]
+selected = 0
+
+[node name="VSeparator" type="VSeparator" parent="MainContainer/VectorContainer"]
+margin_left = 180.0
+margin_right = 184.0
+margin_bottom = 66.0
+
+[node name="YContainer" type="VBoxContainer" parent="MainContainer/VectorContainer"]
+margin_left = 188.0
+margin_right = 364.0
+margin_bottom = 66.0
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="MainContainer/VectorContainer/YContainer"]
+margin_right = 176.0
+margin_bottom = 14.0
+text = "Y"
+
+[node name="Offset" type="HBoxContainer" parent="MainContainer/VectorContainer/YContainer"]
+margin_top = 18.0
+margin_right = 176.0
+margin_bottom = 42.0
+
+[node name="Label" type="Label" parent="MainContainer/VectorContainer/YContainer/Offset"]
+margin_top = 5.0
+margin_right = 86.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+text = "Offset"
+
+[node name="LineEdit" type="LineEdit" parent="MainContainer/VectorContainer/YContainer/Offset"]
+margin_left = 90.0
+margin_right = 176.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+
+[node name="Placement" type="HBoxContainer" parent="MainContainer/VectorContainer/YContainer"]
+margin_top = 46.0
+margin_right = 176.0
+margin_bottom = 66.0
+
+[node name="Label" type="Label" parent="MainContainer/VectorContainer/YContainer/Placement"]
+margin_top = 3.0
+margin_right = 83.0
+margin_bottom = 17.0
+size_flags_horizontal = 3
+text = "Growth"
+
+[node name="OptionButton" type="OptionButton" parent="MainContainer/VectorContainer/YContainer/Placement"]
+margin_left = 87.0
+margin_right = 176.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Bottom"
+items = [ "Bottom", null, false, 0, null, "Middle", null, false, 1, null, "Top", null, false, 2, null ]
+selected = 0
+
+[node name="VSeparator2" type="VSeparator" parent="MainContainer/VectorContainer"]
+margin_left = 368.0
+margin_right = 372.0
+margin_bottom = 66.0
+
+[node name="ZContainer" type="VBoxContainer" parent="MainContainer/VectorContainer"]
+margin_left = 376.0
+margin_right = 552.0
+margin_bottom = 66.0
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="MainContainer/VectorContainer/ZContainer"]
+margin_right = 176.0
+margin_bottom = 14.0
+text = "Z"
+
+[node name="Offset" type="HBoxContainer" parent="MainContainer/VectorContainer/ZContainer"]
+margin_top = 18.0
+margin_right = 176.0
+margin_bottom = 42.0
+
+[node name="Label" type="Label" parent="MainContainer/VectorContainer/ZContainer/Offset"]
+margin_top = 5.0
+margin_right = 86.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+text = "Offset"
+
+[node name="LineEdit" type="LineEdit" parent="MainContainer/VectorContainer/ZContainer/Offset"]
+margin_left = 90.0
+margin_right = 176.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+
+[node name="Placement" type="HBoxContainer" parent="MainContainer/VectorContainer/ZContainer"]
+margin_top = 46.0
+margin_right = 176.0
+margin_bottom = 66.0
+
+[node name="Label" type="Label" parent="MainContainer/VectorContainer/ZContainer/Placement"]
+margin_top = 3.0
+margin_right = 86.0
+margin_bottom = 17.0
+size_flags_horizontal = 3
+text = "Growth"
+
+[node name="OptionButton" type="OptionButton" parent="MainContainer/VectorContainer/ZContainer/Placement"]
+margin_left = 90.0
+margin_right = 176.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Back"
+items = [ "Back", null, false, 0, null, "Middle", null, false, 1, null, "Forward", null, false, 2, null ]
+selected = 0
+
+[node name="Button" type="Button" parent="MainContainer"]
+margin_left = 251.0
+margin_top = 70.0
+margin_right = 301.0
+margin_bottom = 90.0
+size_flags_horizontal = 4
+text = "Finish"
+
+[connection signal="pressed" from="MainContainer/Button" to="." method="pressed_finish"]
