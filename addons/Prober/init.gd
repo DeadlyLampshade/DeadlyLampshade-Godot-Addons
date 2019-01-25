@@ -2,26 +2,32 @@ tool
 extends EditorPlugin
 
 const ProberButton = preload("ProberButton.tscn")
+const OffsetCreator = preload("OffsetCreator.tscn")
+
+var offset_creator
 
 var button : MenuButton
 var current_selection = []
 
 func _enter_tree():
+	var editor_control = get_editor_interface().get_base_control()
 	button = ProberButton.instance()
+	offset_creator = OffsetCreator.instance()
+	editor_control.add_child(offset_creator)
 	button.flat = true
 	button.hide()
-	
+
 	if !ProjectSettings.has_setting("editor_plugins/prober/bake_on_create"):
 		ProjectSettings.set_setting("editor_plugins/prober/bake_on_create", true)
 	if !ProjectSettings.has_setting("editor_plugins/prober/initial_subdiv"):
 		ProjectSettings.set_setting("editor_plugins/prober/initial_subdiv", 1)
 	if !ProjectSettings.has_setting("editor_plugins/prober/extent_growth"):
 		ProjectSettings.set_setting("editor_plugins/prober/extent_growth", Vector3(0.1,0.1,0.1))
-	
+
 	ProjectSettings.add_property_info({"name": "editor_plugins/prober/bake_on_create", "type": TYPE_BOOL})
 	ProjectSettings.add_property_info({"name": "editor_plugins/prober/initial_subdiv", "type": TYPE_INT, "hint": PROPERTY_HINT_ENUM, "hint_string": "64,128,256,512"})
 	ProjectSettings.add_property_info({"name": "editor_plugins/prober/extent_growth", "type": TYPE_VECTOR3})
-	
+
 	add_control_to_container(EditorPlugin.CONTAINER_SPATIAL_EDITOR_MENU, button)
 	button.icon = button.get_icon("GIProbe", "EditorIcons")
 	get_editor_interface().get_selection().connect("selection_changed", self, "get_selection")
@@ -29,9 +35,22 @@ func _enter_tree():
 	pass
 
 func get_popup_pressed(id):
+	var doing_stuff = false
+	var probe
 	match(id):
-		0: create_gi_probe()
-		1: create_baked_lightmap()
+		0: 
+			probe = create_gi_probe()
+			doing_stuff = true
+		1: 
+			create_baked_lightmap()
+		2: 
+			probe = yield(create_gi_probe_with_offset(), "completed")
+			doing_stuff = true
+	if ProjectSettings.get_setting("editor_plugins/prober/bake_on_create") \
+		and doing_stuff \
+		and probe != null:
+		probe.subdiv = ProjectSettings.get_setting("editor_plugins/prober/initial_subdiv")
+		probe.bake()
 
 func check_children_for_nodes(node):
 	var array = []
@@ -46,10 +65,10 @@ func get_selection():
 	var selected_objects = selection.get_selected_nodes()
 	var array = []
 	for object in selected_objects:
-		if object is GeometryInstance:
+		if object is GeometryInstance and !array.has(object):
 			if object.use_in_baked_light: array.append(object)
-		array += check_children_for_nodes(object)
-	print(array)
+		for child in check_children_for_nodes(object):
+			if !array.has(child): array.append(child)
 	if !array.empty():
 		button.show()
 	else:
@@ -74,6 +93,28 @@ func create_baked_lightmap():
 	baked_lightmap.bake_extents = (aabb.size/2.0) + ProjectSettings.get_setting("editor_plugins/prober/extent_growth")
 	baked_lightmap.translation = aabb.position + (aabb.size/2.0)
 
+func create_gi_probe_with_offset():
+	var result : Dictionary = yield(offset_creator.start_popup(), "completed")
+	if result.empty(): return null
+	var probe = create_gi_probe()
+	
+	probe.extents.x += result.x.offset
+	match(result.x.pos):
+		0: probe.translation.x -= result.x.offset
+		2: probe.translation.x += result.x.offset
+	
+	probe.extents.y += result.y.offset
+	match(result.y.pos):
+		0: probe.translation.y -= result.y.offset
+		2: probe.translation.y += result.y.offset
+	
+	probe.extents.z += result.z.offset
+	match(result.z.pos):
+		0: probe.translation.z -= result.z.offset
+		2: probe.translation.z += result.z.offset
+	
+	return probe
+
 func create_gi_probe():
 	var aabb = make_aabb()
 	var gi_probe = GIProbe.new()
@@ -82,10 +123,9 @@ func create_gi_probe():
 	gi_probe.owner = _owner
 	gi_probe.extents = (aabb.size/2.0) + ProjectSettings.get_setting("editor_plugins/prober/extent_growth")
 	gi_probe.translation = aabb.position + (aabb.size/2.0)
-	if ProjectSettings.get_setting("editor_plugins/prober/bake_on_create"):
-		gi_probe.subdiv= ProjectSettings.get_setting("editor_plugins/prober/initial_subdiv")
-		gi_probe.bake()
+	return gi_probe
 
 func _exit_tree():
+	offset_creator.queue_free()
 	remove_control_from_container(EditorPlugin.CONTAINER_CANVAS_EDITOR_MENU, button)
 	button.queue_free()
