@@ -1,6 +1,8 @@
 tool
 extends EditorPlugin
 
+const TAG_HINT = "deadlylampshade/tag_hint"
+
 const InspectorPlugin = preload("EditorInspectorPlugin/TagInspector.gd")
 var inspector
 
