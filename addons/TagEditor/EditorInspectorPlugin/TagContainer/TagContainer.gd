@@ -1,5 +1,6 @@
 tool
 extends Container
+class_name TagContainer
 
 export(int) var hseperation = 5
 export(int) var vseperation = 5

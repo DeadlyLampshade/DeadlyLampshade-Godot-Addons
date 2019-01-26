@@ -1,6 +1,10 @@
 tool
 extends EditorPlugin
 
+const PROPERTY_BAKE_ON_CREATE = "editor_plugins/deadlylampshade/prober/bake_on_create"
+const PROPERTY_INITIAL_SUBDIV = "editor_plugins/deadlylampshade/prober/initial_subdiv"
+const PROPERTY_EXTENT_GROWTH = "editor_plugins/deadlylampshade/prober/extent_growth"
+
 const ProberButton = preload("ProberButton.tscn")
 const OffsetCreator = preload("OffsetCreator.tscn")
 
@@ -17,16 +21,16 @@ func _enter_tree():
 	button.flat = true
 	button.hide()
 
-	if !ProjectSettings.has_setting("editor_plugins/prober/bake_on_create"):
-		ProjectSettings.set_setting("editor_plugins/prober/bake_on_create", true)
-	if !ProjectSettings.has_setting("editor_plugins/prober/initial_subdiv"):
-		ProjectSettings.set_setting("editor_plugins/prober/initial_subdiv", 1)
-	if !ProjectSettings.has_setting("editor_plugins/prober/extent_growth"):
-		ProjectSettings.set_setting("editor_plugins/prober/extent_growth", Vector3(0.1,0.1,0.1))
+	if !ProjectSettings.has_setting(PROPERTY_BAKE_ON_CREATE):
+		ProjectSettings.set_setting(PROPERTY_BAKE_ON_CREATE, true)
+	if !ProjectSettings.has_setting(PROPERTY_INITIAL_SUBDIV):
+		ProjectSettings.set_setting(PROPERTY_INITIAL_SUBDIV, 1)
+	if !ProjectSettings.has_setting(PROPERTY_EXTENT_GROWTH):
+		ProjectSettings.set_setting(PROPERTY_EXTENT_GROWTH, Vector3(0.1,0.1,0.1))
 
-	ProjectSettings.add_property_info({"name": "editor_plugins/prober/bake_on_create", "type": TYPE_BOOL})
-	ProjectSettings.add_property_info({"name": "editor_plugins/prober/initial_subdiv", "type": TYPE_INT, "hint": PROPERTY_HINT_ENUM, "hint_string": "64,128,256,512"})
-	ProjectSettings.add_property_info({"name": "editor_plugins/prober/extent_growth", "type": TYPE_VECTOR3})
+	ProjectSettings.add_property_info({"name": PROPERTY_BAKE_ON_CREATE, "type": TYPE_BOOL})
+	ProjectSettings.add_property_info({"name": PROPERTY_INITIAL_SUBDIV, "type": TYPE_INT, "hint": PROPERTY_HINT_ENUM, "hint_string": "64,128,256,512"})
+	ProjectSettings.add_property_info({"name": PROPERTY_EXTENT_GROWTH, "type": TYPE_VECTOR3})
 
 	add_control_to_container(EditorPlugin.CONTAINER_SPATIAL_EDITOR_MENU, button)
 	button.icon = button.get_icon("GIProbe", "EditorIcons")
@@ -42,14 +46,16 @@ func get_popup_pressed(id):
 			probe = create_gi_probe()
 			doing_stuff = true
 		1: 
-			create_baked_lightmap()
-		2: 
 			probe = yield(create_gi_probe_with_offset(), "completed")
 			doing_stuff = true
-	if ProjectSettings.get_setting("editor_plugins/prober/bake_on_create") \
+		2: 
+			create_baked_lightmap()
+		3:
+			create_baked_lightmap_with_offset()
+	if ProjectSettings.get_setting(PROPERTY_BAKE_ON_CREATE) \
 		and doing_stuff \
 		and probe != null:
-		probe.subdiv = ProjectSettings.get_setting("editor_plugins/prober/initial_subdiv")
+		probe.subdiv = ProjectSettings.get_setting(PROPERTY_INITIAL_SUBDIV)
 		probe.bake()
 
 func check_children_for_nodes(node):
@@ -92,6 +98,29 @@ func create_baked_lightmap():
 	baked_lightmap.owner = _owner
 	baked_lightmap.bake_extents = (aabb.size/2.0) + ProjectSettings.get_setting("editor_plugins/prober/extent_growth")
 	baked_lightmap.translation = aabb.position + (aabb.size/2.0)
+	
+	return baked_lightmap
+
+func create_baked_lightmap_with_offset():
+	var result : Dictionary = yield(offset_creator.start_popup(), "completed")
+	if result.empty(): return null
+	var lightmap = create_baked_lightmap()
+	
+	lightmap.bake_extents.x += result.x.offset
+	match(result.x.pos):
+		0: lightmap.translation.x -= result.x.offset
+		2: lightmap.translation.x += result.x.offset
+	
+	lightmap.bake_extents.y += result.y.offset
+	match(result.y.pos):
+		0: lightmap.translation.y -= result.y.offset
+		2: lightmap.translation.y += result.y.offset
+	
+	lightmap.bake_extents.z += result.z.offset
+	match(result.z.pos):
+		0: lightmap.translation.z -= result.z.offset
+		2: lightmap.translation.z += result.z.offset
+	return lightmap
 
 func create_gi_probe_with_offset():
 	var result : Dictionary = yield(offset_creator.start_popup(), "completed")
@@ -121,7 +150,7 @@ func create_gi_probe():
 	var _owner = get_editor_interface().get_edited_scene_root()
 	_owner.add_child(gi_probe)
 	gi_probe.owner = _owner
-	gi_probe.extents = (aabb.size/2.0) + ProjectSettings.get_setting("editor_plugins/prober/extent_growth")
+	gi_probe.extents = (aabb.size/2.0) + ProjectSettings.get_setting(PROPERTY_EXTENT_GROWTH)
 	gi_probe.translation = aabb.position + (aabb.size/2.0)
 	return gi_probe
 
