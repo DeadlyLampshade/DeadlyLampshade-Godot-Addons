@@ -47,6 +47,10 @@ func editor_property(_name, _type, _default, _hint = 0, _hint_string = ""):
 	ProjectSettings.set_initial_value(_name, _default)
 	ProjectSettings.add_property_info({"name": _name, "type": _type, "hint":_hint, "hint_string": _hint_string})
 
+func get_property(_name):
+	_name = "%s/%s" % [PROPERTY_DIRECTORY, _name]
+	return ProjectSettings.get_setting(_name)
+
 func get_popup_pressed(id):
 	var doing_stuff = false
 	var probe
@@ -64,11 +68,11 @@ func get_popup_pressed(id):
 		if probe is BakedLightmap: perform_lightmap_bake(probe)
 
 func perform_gi_bake(probe):
-	if ProjectSettings.get_setting(PROPERTY_BAKE_GI):
+	if get_property(PROPERTY_BAKE_GI):
 		var err = probe.bake()
 
 func perform_lightmap_bake(probe : BakedLightmap):
-	if ProjectSettings.get_setting(PROPERTY_BAKE_LIGHTMAPS):
+	if get_property(PROPERTY_BAKE_LIGHTMAPS):
 		var err = probe.bake()
 
 func check_children_for_nodes(node):
@@ -109,10 +113,10 @@ func create_baked_lightmap():
 	var _owner = get_editor_interface().get_edited_scene_root()
 	_owner.add_child(baked_lightmap)
 	baked_lightmap.owner = _owner
-	baked_lightmap.bake_extents = (aabb.size/2.0) + ProjectSettings.get_setting("editor_plugins/prober/extent_growth")
+	baked_lightmap.bake_extents = (aabb.size/2.0) + get_property(PROPERTY_EXTENT_GROWTH)
 	baked_lightmap.translation = aabb.position + (aabb.size/2.0)
-	baked_lightmap.bake_quality = ProjectSettings.get_setting(PROPERTY_LIGHTMAP_QUALITY)
-	baked_lightmap.bake_mode = ProjectSettings.get_setting(PROPERTY_LIGHTMAP_MODE)
+	baked_lightmap.bake_quality = get_property(PROPERTY_LIGHTMAP_QUALITY)
+	baked_lightmap.bake_mode = get_property(PROPERTY_LIGHTMAP_MODE)
 	return baked_lightmap
 
 func create_baked_lightmap_with_offset():
@@ -164,9 +168,9 @@ func create_gi_probe():
 	var _owner = get_editor_interface().get_edited_scene_root()
 	_owner.add_child(gi_probe)
 	gi_probe.owner = _owner
-	gi_probe.extents = (aabb.size/2.0) + ProjectSettings.get_setting(PROPERTY_EXTENT_GROWTH)
+	gi_probe.extents = (aabb.size/2.0) + get_property(PROPERTY_EXTENT_GROWTH)
 	gi_probe.translation = aabb.position + (aabb.size/2.0)
-	gi_probe.subdiv = ProjectSettings.get_setting(PROPERTY_INITIAL_SUBDIV)
+	gi_probe.subdiv = get_property(PROPERTY_INITIAL_SUBDIV)
 	return gi_probe
 
 func _exit_tree():
