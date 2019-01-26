@@ -44,7 +44,7 @@ func editor_property(_name, _type, _default, _hint = 0, _hint_string = ""):
 	_name = "%s/%s" % [PROPERTY_DIRECTORY, _name]
 	if !ProjectSettings.has_setting(_name):
 		ProjectSettings.set_setting(_name, _default)
-		ProjectSettings.set_initial_value(_name, _default)
+	ProjectSettings.set_initial_value(_name, _default)
 	ProjectSettings.add_property_info({"name": _name, "type": _type, "hint":_hint, "hint_string": _hint_string})
 
 func get_popup_pressed(id):
