@@ -19,6 +19,7 @@ func _ready():
 func _initialize(_property, _node, _color, _capitalize_property):
 	property = _property
 	label.text = _property.capitalize() if _capitalize_property else _property
+	label.add_color_override("font_color", get_color("property_color", "Editor"))
 	object = _node
 	change_tag_visibility(false)
 	color = _color if _color is Color else get_color("accent_color", "Editor").linear_interpolate(get_color("base_color", "Editor"), 0.5)
