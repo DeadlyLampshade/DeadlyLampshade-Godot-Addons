@@ -3,6 +3,8 @@
 [ext_resource path="res://addons/TagEditor/EditorInspectorPlugin/TagContainer/TagEditor.gd" type="Script" id=1]
 [ext_resource path="res://addons/TagEditor/EditorInspectorPlugin/TagContainer/TagContainer.tscn" type="PackedScene" id=2]
 
+
+
 [node name="Control" type="VBoxContainer"]
 anchor_right = 1.0
 anchor_bottom = 1.0

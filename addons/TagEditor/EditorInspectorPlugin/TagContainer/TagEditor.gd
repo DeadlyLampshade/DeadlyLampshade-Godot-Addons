@@ -21,7 +21,7 @@ func _initialize(_property, _node, _color, _capitalize_property):
 	label.text = _property.capitalize() if _capitalize_property else _property
 	object = _node
 	change_tag_visibility(false)
-	color = _color if _color is Color else get_color("base_color", "Editor").linear_interpolate(get_color("accent_color", "Editor"), 0.33)
+	color = _color if _color is Color else get_color("accent_color", "Editor").linear_interpolate(get_color("base_color", "Editor"), 0.5)
 	var parent = container.get_parent() as Container
 	parent.add_stylebox_override("panel", get_stylebox("Background", "EditorStyles"))
 
