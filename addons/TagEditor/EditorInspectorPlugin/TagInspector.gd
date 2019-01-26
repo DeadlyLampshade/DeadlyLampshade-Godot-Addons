@@ -1,7 +1,7 @@
 tool
 extends EditorInspectorPlugin
 
-const TAG_HINT = "editor_plugins/tag_hint"
+const TAG_HINT = "deadlylampshade/tag_hint"
 
 const TagEditor = preload("TagContainer/TagEditor.tscn")
 
