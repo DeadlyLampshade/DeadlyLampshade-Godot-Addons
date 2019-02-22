@@ -2,7 +2,8 @@ extends Reference
 class_name ControlBuilder
 
 var tree = null
-var context = null
+var context = []
+var last_created_node 
 
 func finish():
 	# Returns the current tree.
@@ -10,7 +11,7 @@ func finish():
 	
 	var previous_tree = tree
 	tree = null
-	context = null
+	context = []
 	return previous_tree
 
 func insert_object(object):
@@ -18,32 +19,22 @@ func insert_object(object):
 	# - The child of the current context
 	# - The child of the tree
 	# - The new tree object.
-	if context is Node:
-		context.add_child(object)
-	elif context == null and tree is Node:
+	if !context.empty():
+		context.back().add_child(object)
+	elif tree is Node:
 		tree.add_child(object)
 	elif tree == null:
 		tree = object
+	last_created_node = object
 
-func make_parent_context():
-	# Makes the parent of the context, the new context.
-	# If the parent is not a child of the tree, it makes the context null instead.
-	
-	var parent = context.get_parent()
-	if tree.is_a_parent_of(parent):
-		context = parent
-	else:
-		context = null
-	return context
-
-func make_context(object):
-	# Objects are added to the context node before the tree.
-	
+func start_context(object=last_created_node):
 	if object is Node:
-		context = object
-	else:
-		context = null
+		context.append(object)
 	return object
+
+func end_context():
+	if !context.empty():
+		context.pop_back()
 
 # BUTTONS
 #---------
@@ -72,8 +63,19 @@ func add_check_button(title = "CheckButton", icon =null, h_flags=1, v_flags=1, s
 	insert_object(object)
 	return object
 
-func add_color_picker_button(h_flags = 1, v_flags = 1, stretching=1.0):
+# COLOR
+#-------
+
+func add_color_picker_button(color = Color.black, h_flags = 1, v_flags = 1, stretching=1.0):
 	var object = ColorPickerButton.new()
+	object.color = color
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
+
+func add_color_picker(color = Color.black, h_flags=1, v_flags=1, stretching=1.0):
+	var object = ColorPicker.new()
+	object.color = color
 	set_size_flags(object, h_flags, v_flags, stretching)
 	insert_object(object)
 	return object
@@ -82,73 +84,153 @@ func add_color_picker_button(h_flags = 1, v_flags = 1, stretching=1.0):
 #--------------
 
 func add_line_edit(h_flags=1, v_flags=1, stretching=1.0):
-	var line_edit = LineEdit.new()
-	set_size_flags(line_edit, h_flags, v_flags, stretching)
-	insert_object(line_edit)
-	return line_edit
+	var object = LineEdit.new()
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
+
+func add_text_edit(h_flags=1, v_flags=1, stretching=1.0):
+	var object = TextEdit.new()
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
+
+# RANGE
+#-------
+func add_spin_box(_min=0, _max=100, h_flags=1, v_flags=1, stretching=1.0):
+	var object = SpinBox.new()
+	object.min_value = _min
+	object.max_value = _max
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
+
+func add_hscroll(_min=0, _max=100, h_flags=1, v_flags=1, stretching=1.0):
+	var object = HScrollBar.new()
+	object.min_value = _min
+	object.max_value = _max
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
+
+func add_vscroll(_min=0, _max=100, h_flags=1, v_flags=1, stretching=1.0):
+	var object = VScrollBar.new()
+	object.min_value = _min
+	object.max_value = _max
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
+
+func add_hslider(_min=0, _max=100, h_flags=1, v_flags=1, stretching=1.0):
+	var object = HSlider.new()
+	object.min_value = _min
+	object.max_value = _max
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
+
+func add_vslider(_min=0, _max=100, h_flags=1, v_flags=1, stretching=1.0):
+	var object = VSlider.new()
+	object.min_value = _min
+	object.max_value = _max
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
+
+func add_progress_bar(_min=0, _max=100, h_flags=1, v_flags=1, stretching=1.0):
+	var object = ProgressBar.new()
+	object.min_value = _min
+	object.max_value = _max
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
 
 # GENERIC OR ABSTRACT
 #---------------------
 
 func add_label(text = "Text", h_flags=1, v_flags=1, stretching=1.0):
-	var label = Label.new()
-	label.text = text
-	set_size_flags(label, h_flags, v_flags, stretching)
-	insert_object(label)
-	return label
+	var object = Label.new()
+	object.text = text
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
 
 func add_blank_control(h_flags=1, v_flags=1, stretching=1.0):
-	var control = Control.new()
-	set_size_flags(control, h_flags, v_flags, stretching)
-	insert_object(control)
-	return control
+	var object = Control.new()
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
 
-func add_custom_control(control, h_flags=1, v_flags=1, stretching=1.0):
-	set_size_flags(control, h_flags, v_flags, stretching)
-	insert_object(control)
-	return control
+func add_vseperator(h_flags=1, v_flags=1, stretching=1.0):
+	var object = VSeparator.new()
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
+
+func add_hseperator(h_flags=1, v_flags=1, stretching=1.0):
+	var object = HSeparator.new()
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
+
+func add_custom_control(object, h_flags=1, v_flags=1, stretching=1.0):
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
 
 # INSTANT CONTAINER
 #-------------------
 
-func add_hbox_container(h_flags=1, v_flags=1, stretching=1.0):
-	var hbox = HBoxContainer.new()
-	set_size_flags(hbox, h_flags, v_flags, stretching)
-	insert_object(hbox)
-	return hbox
+func add_hbox(h_flags=1, v_flags=1, stretching=1.0):
+	var object = HBoxContainer.new()
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
 
-func add_vbox_container(h_flags=1, v_flags=1, stretching=1.0):
-	var vbox = VBoxContainer.new()
-	set_size_flags(vbox, h_flags, v_flags, stretching)
-	insert_object(vbox)
-	return vbox
+func add_vbox(h_flags=1, v_flags=1, stretching=1.0):
+	var object = VBoxContainer.new()
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
 
-func add_panel_container(h_flags=1, v_flags=1, stretching = 1.0):
-	var box = PanelContainer.new()
-	set_size_flags(box, h_flags, v_flags, stretching)
-	insert_object(box)
-	return box
+func add_hsplit(h_flags=1, v_flags=1, stretching=1.0):
+	var object = HSplitContainer.new()
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
+
+func add_vsplit(h_flags=1, v_flags=1, stretching=1.0):
+	var object = VSplitContainer.new()
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
+
+func add_panelbox(h_flags=1, v_flags=1, stretching = 1.0):
+	var object = PanelContainer.new()
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
 
 func add_center_container(h_flags = 1, v_flags = 1, stretching = 1.0):
-	var center = CenterContainer.new()
-	set_size_flags(center, h_flags, v_flags, stretching)
-	insert_object(center)
-	return center
+	var object = CenterContainer.new()
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
 
 func add_scroll_container(vertical = true, horizontal = false, h_flags=1, v_flags=1, stretching =1.0):
-	var scroll = ScrollContainer.new()
-	scroll.scroll_vertical_enabled = vertical
-	scroll.scroll_horizontal_enabled = horizontal
-	set_size_flags(scroll, h_flags, v_flags, stretching)
-	insert_object(scroll)
-	return scroll
+	var object = ScrollContainer.new()
+	object.scroll_vertical_enabled = vertical
+	object.scroll_horizontal_enabled = horizontal
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
 
 func add_grid_container(columns=2, h_flags=1, v_flags=1, stretching=1.0):
-	var gbox = GridContainer.new()
-	gbox.columns = columns
-	set_size_flags(gbox, h_flags, v_flags, stretching)
-	insert_object(gbox)
-	return gbox
+	var object = GridContainer.new()
+	object.columns = columns
+	set_size_flags(object, h_flags, v_flags, stretching)
+	insert_object(object)
+	return object
 
 func add_tab_container(h_flags=1, v_flags=1, stretching=1.0):
 	var object = TabContainer.new()
