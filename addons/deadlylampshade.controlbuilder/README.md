@@ -1,3 +1,8 @@
+# How to use
+In order to use you must first create the object via ControlBuilder.new()
+
+It's ready to go as soon as you do that.
+
 # Noteworthy Functions
 *(Note that ALL args in italics are optional)*
 
